@@ -23,6 +23,12 @@ jobs:
           echo "Project folder: $DIR"
           echo "PROJ=$DIR" >> $GITHUB_ENV
 
+      - name: Apply code fixes
+        run: |
+          cd "$PROJ"
+          sed -i 's/CarContext\.ACTION_DIAL/Intent.ACTION_DIAL/g' app/src/main/java/com/ori/drivehub/car/TeamsScreen.kt
+          grep -n "ACTION_DIAL" app/src/main/java/com/ori/drivehub/car/TeamsScreen.kt
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
