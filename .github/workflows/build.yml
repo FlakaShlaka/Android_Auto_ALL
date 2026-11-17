@@ -10,12 +10,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Unzip project if uploaded as zip
+        run: |
+          Z=$(ls *.zip 2>/dev/null | head -n 1)
+          if [ -n "$Z" ]; then echo "Unzipping $Z"; unzip -o -q "$Z"; fi
+
       - name: Find project folder
         run: |
-          DIR=$(dirname "$(find . -name settings.gradle -not -path '*/node_modules/*' | head -n 1)")
-          if [ -z "$DIR" ] || [ "$DIR" = "." ] && [ ! -f settings.gradle ]; then
-            echo "settings.gradle not found in the repo"; ls -R | head -50; exit 1
-          fi
+          F=$(find . -name settings.gradle -not -path '*/node_modules/*' | head -n 1)
+          if [ -z "$F" ]; then echo "settings.gradle not found"; ls -R | head -50; exit 1; fi
+          DIR=$(dirname "$F")
           echo "Project folder: $DIR"
           echo "PROJ=$DIR" >> $GITHUB_ENV
 
