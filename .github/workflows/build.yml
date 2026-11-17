@@ -10,6 +10,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Find project folder
+        run: |
+          DIR=$(dirname "$(find . -name settings.gradle -not -path '*/node_modules/*' | head -n 1)")
+          if [ -z "$DIR" ] || [ "$DIR" = "." ] && [ ! -f settings.gradle ]; then
+            echo "settings.gradle not found in the repo"; ls -R | head -50; exit 1
+          fi
+          echo "Project folder: $DIR"
+          echo "PROJ=$DIR" >> $GITHUB_ENV
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -24,9 +33,9 @@ jobs:
           gradle-version: '8.7'
 
       - name: Build APK
-        run: gradle assembleDebug --stacktrace --no-daemon
+        run: cd "$PROJ" && gradle assembleDebug --stacktrace --no-daemon
 
       - uses: actions/upload-artifact@v4
         with:
           name: DriveHub-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: ${{ env.PROJ }}/app/build/outputs/apk/debug/*.apk
